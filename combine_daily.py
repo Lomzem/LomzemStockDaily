@@ -7,6 +7,9 @@ import pandas as pd
 from get_daily import RAWDATA_PATH
 
 
+COMBINED_DAILY_PATH = RAWDATA_PATH.parent / "combined_daily.parquet"
+
+
 def combine_daily() -> pd.DataFrame:
     parquet_files = [RAWDATA_PATH / file for file in os.listdir(RAWDATA_PATH)]
     df = pd.concat(pd.read_parquet(file) for file in parquet_files)
@@ -15,11 +18,12 @@ def combine_daily() -> pd.DataFrame:
     # add useful columns
     df["pclose"] = df.groupby("ticker").close.transform("shift")
     df.dropna(inplace=True)
-    df["gap"] = df["close"] / df["pclose"] - 1
+    df["gap"] = df["open"] / df["pclose"] - 1
+    df["change"] = df["close"] / df["open"] - 1
+    df["closed_red"] = df["close"] < df["open"]
 
-    filepath = RAWDATA_PATH.parent / "combined_daily.parquet"
-    df.to_parquet(filepath)
-    logging.info(f"Combined daily data to {filepath}")
+    df.to_parquet(COMBINED_DAILY_PATH)
+    logging.info(f"Combined daily data to {COMBINED_DAILY_PATH}")
     return df
 
 
