@@ -12,9 +12,6 @@ from polygon import RESTClient
 RAWDATA_PATH = pathlib.Path("/home/lomzem/coding/LomzemStock/daily_stuff/rawdailydata/")
 
 
-pd.options.display.max_columns = None
-
-
 def get_polygon_daily(date: datetime.date):
     client = RESTClient(os.getenv("POLYGON_API_KEY"))
     while True:
