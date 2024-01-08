@@ -19,14 +19,24 @@ def get_polygon_daily(date: datetime.date):
             resp = client.get_grouped_daily_aggs(date.strftime("%Y-%m-%d"))
             break
         except MaxRetryError:
-            logging.debug("Request limit exceeded, waiting 15s")
+            logging.info("Request limit exceeded, waiting 15s")
             time.sleep(15)
             continue
 
     df = pd.DataFrame(resp)
 
     df = df[
-        ["timestamp", "open", "high", "low", "close", "volume", "vwap", "transactions"]
+        [
+            "timestamp",
+            "ticker",
+            "open",
+            "high",
+            "low",
+            "close",
+            "volume",
+            "vwap",
+            "transactions",
+        ]
     ]
     df.rename(columns={"timestamp": "date", "transactions": "trades"}, inplace=True)
     df.dropna(inplace=True)
@@ -49,7 +59,7 @@ def get_polygon_daily(date: datetime.date):
     )
     path = RAWDATA_PATH / f"{date.year}-{date.month}-{date.day}.parquet"
     df.to_parquet(path)
-    logging.info(f"Done with {date}")
+    logging.info(f"Done with {date.date()}")
 
 
 def main():
